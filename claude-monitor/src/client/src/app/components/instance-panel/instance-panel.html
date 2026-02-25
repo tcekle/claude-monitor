@@ -1,0 +1,92 @@
+@if (instance(); as inst) {
+  <div class="flex flex-col h-full">
+    <!-- Panel header -->
+    <div class="flex items-center justify-between px-4 py-2 border-b border-surface bg-surface-50 dark:bg-surface-900">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold">{{ inst.name }}</span>
+        <p-tag [value]="inst.status" [severity]="statusSeverity(inst.status)" />
+        @if (!inst.stdinAvailable) {
+          <p-tag value="monitoring only" severity="info" />
+        }
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-xs text-surface-500">Results</label>
+        <p-toggleswitch [(ngModel)]="showToolResults" />
+        <label class="text-xs text-surface-500">System</label>
+        <p-toggleswitch [(ngModel)]="showSystemMessages" />
+      </div>
+    </div>
+
+    <!-- Message log -->
+    <div
+      #scrollContainer
+      class="flex-1 overflow-y-auto px-4 py-2 space-y-1"
+      (scroll)="onScroll($event)"
+    >
+      @for (msg of messages(); track $index) {
+        @switch (msg.type) {
+          @case ('assistant') {
+            <app-assistant-message [message]="msg" />
+          }
+          @case ('tool_use') {
+            <app-tool-use-card
+              [message]="msg"
+              [awaitingApproval]="inst.status === 'awaiting_approval' && $last"
+              (approved)="approve(msg)"
+              (approvedSession)="approveSession($event)"
+              (rejected)="reject(msg)" />
+          }
+          @case ('tool_result') {
+            @if (showToolResults) {
+              <app-tool-result-card [message]="msg" />
+            }
+          }
+          @case ('result') {
+          }
+          @case ('user_input') {
+            <app-user-input-message [message]="msg" />
+          }
+          @case ('system') {
+            @if (showSystemMessages) {
+              <app-system-message [message]="msg" />
+            }
+          }
+          @default {
+            <div class="text-xs text-surface-400 font-mono">{{ msg.type }}: {{ msg.data | json }}</div>
+          }
+        }
+      }
+
+      @if (messages().length === 0) {
+        <div class="flex items-center justify-center h-full text-surface-400">
+          <div class="text-center">
+            <i class="pi pi-spin pi-spinner text-2xl mb-2"></i>
+            <p>Waiting for output...</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Scroll-to-bottom indicator -->
+    @if (!pinnedToBottom()) {
+      <div class="flex justify-center py-1 border-t border-surface">
+        <p-button
+          label="Scroll to bottom"
+          icon="pi pi-arrow-down"
+          size="small"
+          [text]="true"
+          (onClick)="scrollToBottom(); pinnedToBottom.set(true)" />
+      </div>
+    }
+
+    <!-- Input bar placeholder for future use -->
+  </div>
+} @else {
+  <div class="flex items-center justify-center h-full text-surface-400">
+    <div class="text-center">
+      <i class="pi pi-desktop text-4xl mb-3"></i>
+      <p class="text-lg">No sessions yet</p>
+      <p class="text-sm">Start a Claude Code session with hooks configured to see it here</p>
+    </div>
+  </div>
+}

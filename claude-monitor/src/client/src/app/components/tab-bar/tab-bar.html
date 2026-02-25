@@ -1,0 +1,30 @@
+@if (instances().length > 0) {
+  <div class="flex gap-2 px-4 py-2 overflow-x-auto border-b border-surface">
+    @for (inst of instances(); track inst.id) {
+      <button
+        [class]="tabClass(inst.id)"
+        (click)="selectTab(inst.id)"
+        (dblclick)="startRename(inst.id, inst.name, $event)"
+      >
+        <span class="inline-block w-2 h-2 rounded-full" [class]="statusDot(inst.status)"></span>
+        @if (editingId() === inst.id) {
+          <input
+            #renameInput
+            class="bg-transparent border-b border-current outline-none text-sm w-24"
+            [value]="inst.name"
+            (keydown.enter)="commitRename(inst.id, renameInput.value)"
+            (keydown.escape)="cancelRename()"
+            (blur)="commitRename(inst.id, renameInput.value)"
+            (click)="$event.stopPropagation()"
+          />
+        } @else {
+          {{ inst.name }}
+        }
+      </button>
+    }
+  </div>
+} @else {
+  <div class="px-4 py-3 text-center text-surface-500 text-sm border-b border-surface">
+    No active sessions. Start a Claude Code instance with hooks configured to see it here.
+  </div>
+}

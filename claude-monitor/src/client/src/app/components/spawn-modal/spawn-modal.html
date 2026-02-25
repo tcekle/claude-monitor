@@ -1,0 +1,55 @@
+<p-dialog
+  header="New Claude Instance"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  (onHide)="onHide()"
+>
+  <div class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium" for="spawn-name">Name (optional)</label>
+      <input
+        pInputText
+        id="spawn-name"
+        [(ngModel)]="name"
+        placeholder="e.g., Frontend refactor"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium" for="spawn-prompt">Prompt *</label>
+      <textarea
+        pTextarea
+        id="spawn-prompt"
+        [(ngModel)]="prompt"
+        [rows]="5"
+        placeholder="What should Claude do?"
+        [autoResize]="true"
+      ></textarea>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium" for="spawn-cwd">Working directory (optional)</label>
+      <input
+        pInputText
+        id="spawn-cwd"
+        [(ngModel)]="cwd"
+        placeholder="Defaults to server directory"
+      />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        (onClick)="visible.set(false)" />
+      <p-button
+        label="Start"
+        severity="primary"
+        [disabled]="!prompt.trim()"
+        (onClick)="spawn()" />
+    </div>
+  </ng-template>
+</p-dialog>

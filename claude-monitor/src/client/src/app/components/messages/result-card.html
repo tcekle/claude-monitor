@@ -1,0 +1,22 @@
+<div class="my-2 border-l-4 border-green-500 rounded-lg overflow-hidden">
+  <p-card>
+    <div class="flex items-center gap-2 mb-2">
+      <i class="pi pi-check-circle text-green-500"></i>
+      <span class="font-semibold">Result</span>
+    </div>
+    @if (message().text) {
+      <div class="markdown-body mb-3" [innerHTML]="rendered()"></div>
+    }
+    <div class="flex gap-4 text-xs text-surface-500">
+      @if (message().costUsd != null) {
+        <span>Cost: {{ formatCost(message().costUsd!) }}</span>
+      }
+      @if (message().durationMs != null) {
+        <span>Duration: {{ formatDuration(message().durationMs!) }}</span>
+      }
+      @if (message().totalCostUsd != null) {
+        <span>Total: {{ formatCost(message().totalCostUsd!) }}</span>
+      }
+    </div>
+  </p-card>
+</div>

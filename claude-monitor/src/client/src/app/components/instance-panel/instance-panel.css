@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
