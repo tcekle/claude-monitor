@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Instance, InstanceMessage } from '../models/instance.model';
+import { Instance, InstanceMessage, InstanceUsage } from '../models/instance.model';
 import { WebSocketService } from './websocket.service';
 import { ServerMessage } from '../models/ws-messages.model';
 
@@ -87,6 +87,9 @@ export class InstanceStoreService {
       case 'instance_renamed':
         this._handleRename(msg.id, msg.name);
         break;
+      case 'instance_usage':
+        this._handleUsage(msg.id, msg.usage);
+        break;
       case 'error':
         console.error('[store] Server error:', msg.message);
         break;
@@ -145,6 +148,16 @@ export class InstanceStoreService {
       if (!inst) return map;
       const next = new Map(map);
       next.set(id, { ...inst, name });
+      return next;
+    });
+  }
+
+  private _handleUsage(id: string, usage: InstanceUsage): void {
+    this._instances.update((map) => {
+      const inst = map.get(id);
+      if (!inst) return map;
+      const next = new Map(map);
+      next.set(id, { ...inst, usage });
       return next;
     });
   }

@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { randomUUID } from 'crypto';
+import { readFileSync } from 'fs';
 
 function log(tag, ...args) {
   const ts = new Date().toISOString().slice(11, 23);
@@ -119,6 +120,7 @@ export class HookManager extends EventEmitter {
         pid: null,
         stdinAvailable: false,
         messages: session.messages,
+        usage: session.usage || null,
       });
     }
     return instances;
@@ -260,6 +262,12 @@ export class HookManager extends EventEmitter {
     session.status = 'idle';
     this.emit('instance_status', { id: sessionId, status: 'idle' });
 
+    const usage = this._readUsageFromTranscript(data.transcript_path);
+    if (usage) {
+      session.usage = usage;
+      this.emit('instance_usage', { id: sessionId, usage });
+    }
+
     if (data.last_assistant_message) {
       this._addMessage(session, {
         type: 'assistant',
@@ -340,6 +348,26 @@ export class HookManager extends EventEmitter {
       });
     }
     return session;
+  }
+
+  _readUsageFromTranscript(transcriptPath) {
+    if (!transcriptPath) return null;
+    try {
+      const content = readFileSync(transcriptPath, 'utf8');
+      const lines = content.trim().split('\n');
+      // Walk backwards to find the last assistant message with usage
+      for (let i = lines.length - 1; i >= 0; i--) {
+        try {
+          const entry = JSON.parse(lines[i]);
+          if (entry.type === 'assistant' && entry.message?.usage) {
+            return entry.message.usage;
+          }
+        } catch { /* skip malformed lines */ }
+      }
+    } catch (err) {
+      log('transcript', `Failed to read ${transcriptPath}: ${err.message}`);
+    }
+    return null;
   }
 
   _buildName(cwd, sessionId) {

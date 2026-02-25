@@ -5,6 +5,7 @@ import { networkInterfaces } from 'os';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { existsSync } from 'fs';
+import { exec } from 'child_process';
 import { HookManager } from './hook-manager.js';
 import { ensureDataDirs } from './persistence.js';
 
@@ -57,6 +58,10 @@ hookManager.on('message', (data) => {
 hookManager.on('instance_status', (data) => {
   console.log(`[broadcast] instance_status: ${data.id?.slice(0, 8)} → ${data.status}`);
   broadcast({ type: 'instance_status', ...data });
+});
+
+hookManager.on('instance_usage', (data) => {
+  broadcast({ type: 'instance_usage', id: data.id, usage: data.usage });
 });
 
 // WebSocket connection handler
@@ -172,6 +177,21 @@ app.get('/api/hooks/decision/:pendingId', (req, res) => {
 // REST API endpoints
 app.get('/api/instances', (req, res) => {
   res.json(hookManager.getSnapshot());
+});
+
+// Git branch for a given working directory
+app.get('/api/git-branch', (req, res) => {
+  const cwd = req.query.cwd;
+  if (!cwd || typeof cwd !== 'string') {
+    return res.json({ branch: null });
+  }
+  exec('git rev-parse --abbrev-ref HEAD', { cwd, timeout: 3000 }, (err, stdout) => {
+    if (err) {
+      console.log(`[git-branch] failed for cwd=${cwd}: ${err.message}`);
+      return res.json({ branch: null });
+    }
+    res.json({ branch: stdout.trim() || null });
+  });
 });
 
 // Settings generator — returns the .claude/settings.json hooks config

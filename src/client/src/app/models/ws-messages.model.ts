@@ -1,4 +1,4 @@
-import { Instance, InstanceMessage, InstanceStatus } from './instance.model';
+import { Instance, InstanceMessage, InstanceStatus, InstanceUsage } from './instance.model';
 
 // --- Inbound (server → client) ---
 
@@ -38,6 +38,12 @@ export interface InstanceRenamedMessage {
   name: string;
 }
 
+export interface InstanceUsageMessage {
+  type: 'instance_usage';
+  id: string;
+  usage: InstanceUsage;
+}
+
 export interface ErrorMessage {
   type: 'error';
   message: string;
@@ -49,6 +55,7 @@ export type ServerMessage =
   | InstanceMessageEvent
   | InstanceStatusMessage
   | InstanceRenamedMessage
+  | InstanceUsageMessage
   | ErrorMessage;
 
 // --- Outbound (client → server) ---

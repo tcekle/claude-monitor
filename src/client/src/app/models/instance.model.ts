@@ -24,6 +24,13 @@ export interface InstanceMessage {
   ts: number;
 }
 
+export interface InstanceUsage {
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_input_tokens?: number;
+  cache_creation_input_tokens?: number;
+}
+
 export interface Instance {
   id: string;
   name: string;
@@ -33,4 +40,5 @@ export interface Instance {
   pid: number | null;
   stdinAvailable: boolean;
   messages: InstanceMessage[];
+  usage?: InstanceUsage | null;
 }
