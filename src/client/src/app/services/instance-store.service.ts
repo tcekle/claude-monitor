@@ -119,6 +119,8 @@ export class InstanceStoreService {
       pid: msg.pid,
       stdinAvailable: msg.stdinAvailable ?? true,
       messages: [],
+      createdAt: msg.createdAt ?? Date.now(),
+      lastActivityAt: msg.lastActivityAt ?? 0,
     };
     this._instances.update((map) => {
       const next = new Map(map);
@@ -134,9 +136,11 @@ export class InstanceStoreService {
       const inst = map.get(id);
       if (!inst) return map;
       const next = new Map(map);
+      const isActivity = message.type === 'tool_use' || message.type === 'tool_result';
       next.set(id, {
         ...inst,
         messages: [...inst.messages, message],
+        lastActivityAt: isActivity ? Date.now() : inst.lastActivityAt,
       });
       return next;
     });

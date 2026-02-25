@@ -121,6 +121,8 @@ export class HookManager extends EventEmitter {
         stdinAvailable: false,
         messages: session.messages,
         usage: session.usage || null,
+        createdAt: session.createdAt || 0,
+        lastActivityAt: session.lastActivityAt || 0,
       });
     }
     return instances;
@@ -154,6 +156,7 @@ export class HookManager extends EventEmitter {
         status: 'running',
         pid: null,
         stdinAvailable: false,
+        createdAt: session.createdAt,
       });
     } else {
       // Resumed session
@@ -178,6 +181,7 @@ export class HookManager extends EventEmitter {
     log('pre-tool', `[${sessionId.slice(0, 8)}] PreToolUse: ${toolName}`);
 
     const session = this._ensureSession(sessionId, data);
+    session.lastActivityAt = Date.now();
 
     // Create a pending decision
     const pendingId = randomUUID();
@@ -220,6 +224,7 @@ export class HookManager extends EventEmitter {
     log('post-tool', `[${sessionId.slice(0, 8)}] PostToolUse: ${toolName}`);
 
     const session = this._ensureSession(sessionId, data);
+    session.lastActivityAt = Date.now();
 
     if (session.status === 'awaiting_approval') {
       session.status = 'running';
@@ -300,6 +305,7 @@ export class HookManager extends EventEmitter {
     log('notification', `[${sessionId.slice(0, 8)}] Notification: ${data.message || data.notification_type}`);
 
     const session = this._ensureSession(sessionId, data);
+    session.lastActivityAt = Date.now();
     const text = data.message || data.notification_type || 'Notification';
     this._addMessage(session, {
       type: 'system',
@@ -345,6 +351,7 @@ export class HookManager extends EventEmitter {
         status: 'running',
         pid: null,
         stdinAvailable: false,
+        createdAt: session.createdAt,
       });
     }
     return session;

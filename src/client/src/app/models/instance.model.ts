@@ -41,4 +41,6 @@ export interface Instance {
   stdinAvailable: boolean;
   messages: InstanceMessage[];
   usage?: InstanceUsage | null;
+  createdAt: number;
+  lastActivityAt: number;
 }

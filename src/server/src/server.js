@@ -8,6 +8,7 @@ import { existsSync } from 'fs';
 import { exec } from 'child_process';
 import { HookManager } from './hook-manager.js';
 import { ensureDataDirs } from './persistence.js';
+import { loadTranscripts } from './transcript-loader.js';
 
 const PORT = process.env.PORT || 3500;
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -280,6 +281,7 @@ if (existsSync(clientDist)) {
 // Start
 async function start() {
   await ensureDataDirs();
+  loadTranscripts(hookManager);
 
   server.listen(PORT, '0.0.0.0', () => {
     const bridgePath = join(__dirname, 'hooks', 'hook-bridge.mjs').replace(/\\/g, '/');
