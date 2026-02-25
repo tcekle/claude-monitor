@@ -80,7 +80,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 5200
+            "port": 5200,
+            "host": "0.0.0.0"
           },
           "configurations": {
             "production": {
