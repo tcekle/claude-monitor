@@ -1,9 +1,40 @@
 <p-toast />
-<div class="flex flex-col h-screen">
-  <app-header />
-  <app-tab-bar />
-  <main class="flex-1 min-h-0">
-    <app-instance-panel />
-  </main>
-  <app-status-bar />
+
+<div class="flex h-screen overflow-hidden bg-surface-950 dark:bg-surface-950">
+
+  <!-- Mobile backdrop -->
+  @if (sidebarOpen()) {
+    <div
+      class="fixed inset-0 bg-black/60 z-20 lg:hidden"
+      (click)="sidebarOpen.set(false)"
+    ></div>
+  }
+
+  <!-- Sidebar -->
+  <aside [class]="sidebarClass()">
+    <app-sidebar (close)="sidebarOpen.set(false)" />
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex flex-col flex-1 min-w-0">
+
+    <!-- Mobile top bar -->
+    <div class="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-surface bg-surface-900">
+      <button
+        class="p-1.5 rounded-lg hover:bg-surface-700 text-surface-300 hover:text-white transition-colors"
+        (click)="sidebarOpen.set(!sidebarOpen())"
+      >
+        <i class="pi pi-bars text-lg"></i>
+      </button>
+      <span class="font-semibold text-surface-100">Claude Monitor</span>
+    </div>
+
+    <!-- Session content -->
+    <main class="flex-1 min-h-0 overflow-hidden">
+      <app-instance-panel />
+    </main>
+
+    <app-status-bar />
+  </div>
+
 </div>
