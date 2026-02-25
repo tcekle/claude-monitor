@@ -28,6 +28,8 @@ export class HookManager extends EventEmitter {
     const sessionId = data.session_id || 'unknown';
 
     switch (eventType) {
+      case 'UserPromptSubmit':
+        return this._handleUserPromptSubmit(sessionId, data);
       case 'SessionStart':
         return this._handleSessionStart(sessionId, data);
       case 'PreToolUse':
@@ -129,6 +131,27 @@ export class HookManager extends EventEmitter {
   }
 
   // --- Event handlers ---
+
+  _handleUserPromptSubmit(sessionId, data) {
+    const prompt = data.prompt || '';
+    log('user-prompt', `[${sessionId.slice(0, 8)}] UserPromptSubmit: ${prompt.slice(0, 80)}`);
+
+    const session = this._ensureSession(sessionId, data);
+
+    // Mark running since Claude is about to start processing
+    if (session.status === 'idle') {
+      session.status = 'running';
+      this.emit('instance_status', { id: sessionId, status: 'running' });
+    }
+
+    this._addMessage(session, {
+      type: 'user_input',
+      text: prompt,
+      ts: Date.now(),
+    });
+
+    return {};
+  }
 
   _handleSessionStart(sessionId, data) {
     log('session', `SessionStart: ${sessionId} (model=${data.model}, source=${data.source})`);

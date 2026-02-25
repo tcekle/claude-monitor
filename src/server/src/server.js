@@ -202,6 +202,15 @@ app.get('/api/hooks-config', (req, res) => {
 
   const config = {
     hooks: {
+      UserPromptSubmit: [{
+        matcher: '',
+        hooks: [{
+          type: 'command',
+          command: `node "${bridgePath}" UserPromptSubmit`,
+          timeout: 10,
+          async: true,
+        }],
+      }],
       SessionStart: [{
         matcher: '',
         hooks: [{
